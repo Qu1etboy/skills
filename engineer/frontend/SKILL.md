@@ -1,0 +1,1 @@
+TBD - Skill on how to develop efficient and scalable Frontend system like a Staff Frontend Engineer
