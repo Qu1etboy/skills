@@ -18,15 +18,13 @@ skills/
 
 ### Claude Code
 
-Run the install script to symlink all skills into `~/.claude/skills/`:
+Symlinks all skills into `~/.claude/skills/`:
 
 ```bash
-./install.sh
+make install
 ```
 
-Then restart Claude Code (or open a new session). Skills are picked up automatically.
-
-Once installed, you can invoke any skill directly:
+Restart Claude Code (or open a new session). Skills are picked up automatically and can be invoked directly:
 
 ```
 /qa
@@ -36,6 +34,22 @@ Once installed, you can invoke any skill directly:
 ```
 
 Or let Claude invoke them automatically when your message matches a skill's description.
+
+### Claude.ai
+
+Requires a Pro, Max, Team, or Enterprise plan with code execution enabled.
+
+Package all skills as zip files:
+
+```bash
+make package
+```
+
+Then for each file in `dist/`:
+1. Go to **Settings → Features → Skills**
+2. Upload the zip
+
+Skills are per-user and don't sync across team members — each person uploads separately.
 
 ### Other agents
 
