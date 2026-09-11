@@ -18,7 +18,7 @@ skills/
 
 ### Claude Code
 
-Symlinks all skills into `~/.claude/skills/`:
+Symlinks all skills into `~/.claude/skills/` and path-scoped rules (`rules/`) into `~/.claude/rules/`:
 
 ```bash
 make install

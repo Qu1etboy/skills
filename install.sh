@@ -1,32 +1,40 @@
 #!/usr/bin/env bash
-# Symlinks all skills into the Claude Code personal skills directory.
+# Symlinks skills into ~/.claude/skills/ and path-scoped rules into ~/.claude/rules/.
 # Run from anywhere: ./install.sh
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
-DEST_DIR="$HOME/.claude/skills"
+SKILLS_DEST="$HOME/.claude/skills"
+RULES_DEST="$HOME/.claude/rules"
 
-mkdir -p "$DEST_DIR"
+# link <source> <target>: create or refresh a symlink, but never clobber a real file.
+link() {
+  local src="$1" target="$2" name
+  name="$(basename "$target")"
+  if [ -L "$target" ]; then
+    rm "$target"; ln -s "$src" "$target"; echo "  updated  $name"
+  elif [ -e "$target" ]; then
+    echo "  skipped  $name  (exists, not a symlink — remove it manually)"
+  else
+    ln -s "$src" "$target"; echo "  linked   $name"
+  fi
+}
 
-echo "Installing skills → $DEST_DIR"
-echo ""
+mkdir -p "$SKILLS_DEST" "$RULES_DEST"
 
+echo "Skills → $SKILLS_DEST"
 while IFS= read -r skill_md; do
   skill_dir="$(dirname "$skill_md")"
-  skill_name="$(basename "$skill_dir")"
-  target="$DEST_DIR/$skill_name"
-
-  if [ -L "$target" ]; then
-    rm "$target"
-    ln -s "$skill_dir" "$target"
-    echo "  updated  $skill_name  →  $skill_dir"
-  elif [ -e "$target" ]; then
-    echo "  skipped  $skill_name  (exists, not a symlink — remove it manually)"
-  else
-    ln -s "$skill_dir" "$target"
-    echo "  linked   $skill_name  →  $skill_dir"
-  fi
+  link "$skill_dir" "$SKILLS_DEST/$(basename "$skill_dir")"
 done < <(find "$REPO_DIR" -name "SKILL.md" -not -path "*/.git/*" | sort)
 
 echo ""
-echo "Done. Restart Claude Code (or open a new session) to pick up new skills."
+echo "Rules → $RULES_DEST"
+if [ -d "$REPO_DIR/rules" ]; then
+  while IFS= read -r rule_md; do
+    link "$rule_md" "$RULES_DEST/$(basename "$rule_md")"
+  done < <(find "$REPO_DIR/rules" -name "*.md" ! -iname "README.md" -not -path "*/.git/*" | sort)
+fi
+
+echo ""
+echo "Done. Restart Claude Code (or open a new session) to pick up changes."
